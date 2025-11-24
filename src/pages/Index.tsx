@@ -130,7 +130,7 @@ const Index = () => {
       <header className="bg-primary text-primary-foreground py-6 px-4 shadow-lg">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-4xl font-bold text-center">
-            🎯 Gestor de Tarefas TDAH
+            Gestor de Tarefas TDAH
           </h1>
           <p className="text-center text-lg mt-2 opacity-90">
             Foco, clareza e organização para o seu dia
@@ -143,12 +143,15 @@ const Index = () => {
         <AddTaskForm onAdd={addTask} />
 
         {/* Focus Mode Toggle */}
-        {todoTasks.length > 0 && (
+        {(todoTasks.length > 0 || progressTasks.length > 0) && (
           <div className="flex justify-center">
             <Button
               variant="outline"
               size="lg"
-              onClick={() => setFocusedTaskId(todoTasks[0].id)}
+              onClick={() => {
+                const firstTask = todoTasks[0] || progressTasks[0];
+                setFocusedTaskId(firstTask.id);
+              }}
               className="gap-3 text-lg h-14 font-bold border-2"
             >
               <Eye className="h-6 w-6" />
