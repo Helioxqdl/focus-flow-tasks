@@ -57,6 +57,26 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        status: {
+          todo: "hsl(var(--status-todo))",
+          "todo-bg": "hsl(var(--status-todo-bg))",
+          "todo-border": "hsl(var(--status-todo-border))",
+          progress: "hsl(var(--status-progress))",
+          "progress-bg": "hsl(var(--status-progress-bg))",
+          "progress-border": "hsl(var(--status-progress-border))",
+          done: "hsl(var(--status-done))",
+          "done-bg": "hsl(var(--status-done-bg))",
+          "done-border": "hsl(var(--status-done-border))",
+        },
+        priority: {
+          high: "hsl(var(--priority-high))",
+          "high-bg": "hsl(var(--priority-high-bg))",
+          medium: "hsl(var(--priority-medium))",
+          "medium-bg": "hsl(var(--priority-medium-bg))",
+          low: "hsl(var(--priority-low))",
+          "low-bg": "hsl(var(--priority-low-bg))",
+        },
+        "focus-overlay": "hsl(var(--focus-overlay))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -80,10 +100,41 @@ export default {
             height: "0",
           },
         },
+        "fade-in": {
+          "0%": {
+            opacity: "0",
+            transform: "translateY(10px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateY(0)",
+          },
+        },
+        "scale-in": {
+          "0%": {
+            transform: "scale(0.95)",
+            opacity: "0",
+          },
+          "100%": {
+            transform: "scale(1)",
+            opacity: "1",
+          },
+        },
+        "pulse-soft": {
+          "0%, 100%": {
+            opacity: "1",
+          },
+          "50%": {
+            opacity: "0.7",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "fade-in": "fade-in 0.3s ease-out",
+        "scale-in": "scale-in 0.2s ease-out",
+        "pulse-soft": "pulse-soft 2s ease-in-out infinite",
       },
     },
   },
