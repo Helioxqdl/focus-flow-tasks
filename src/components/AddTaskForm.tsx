@@ -13,21 +13,31 @@ import {
 import { Priority } from "./TaskCard";
 
 interface AddTaskFormProps {
-  onAdd: (title: string, priority: Priority, reminder?: string) => void;
+  onAdd: (title: string, priority: Priority, reminder?: string, description?: string, estimatedTime?: number) => void;
 }
 
 export function AddTaskForm({ onAdd }: AddTaskFormProps) {
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
   const [reminder, setReminder] = useState("");
+  const [description, setDescription] = useState("");
+  const [estimatedTime, setEstimatedTime] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim()) {
-      onAdd(title, priority, reminder || undefined);
+      onAdd(
+        title, 
+        priority, 
+        reminder || undefined,
+        description || undefined,
+        estimatedTime ? parseInt(estimatedTime) : undefined
+      );
       setTitle("");
       setPriority("medium");
       setReminder("");
+      setDescription("");
+      setEstimatedTime("");
     }
   };
 
@@ -49,7 +59,22 @@ export function AddTaskForm({ onAdd }: AddTaskFormProps) {
           />
         </div>
 
-        {/* Priority and Reminder */}
+        {/* Description */}
+        <div>
+          <Label htmlFor="description" className="text-base font-semibold mb-2 block">
+            Descrição (opcional)
+          </Label>
+          <Input
+            id="description"
+            type="text"
+            placeholder="Detalhes sobre a tarefa..."
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="text-base h-12 border-2"
+          />
+        </div>
+
+        {/* Priority and Estimated Time */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="priority" className="text-base font-semibold mb-2 block">
@@ -74,17 +99,33 @@ export function AddTaskForm({ onAdd }: AddTaskFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="reminder" className="text-base font-semibold mb-2 block">
-              Lembrete (opcional)
+            <Label htmlFor="estimatedTime" className="text-base font-semibold mb-2 block">
+              Tempo estimado (min)
             </Label>
             <Input
-              id="reminder"
-              type="time"
-              value={reminder}
-              onChange={(e) => setReminder(e.target.value)}
+              id="estimatedTime"
+              type="number"
+              placeholder="Ex: 30"
+              value={estimatedTime}
+              onChange={(e) => setEstimatedTime(e.target.value)}
               className="text-base h-12 border-2"
+              min="1"
             />
           </div>
+        </div>
+
+        {/* Reminder */}
+        <div>
+          <Label htmlFor="reminder" className="text-base font-semibold mb-2 block">
+            Lembrete (opcional)
+          </Label>
+          <Input
+            id="reminder"
+            type="time"
+            value={reminder}
+            onChange={(e) => setReminder(e.target.value)}
+            className="text-base h-12 border-2"
+          />
         </div>
 
         {/* Submit Button */}

@@ -7,6 +7,7 @@ interface TaskColumnProps {
   tasks: Task[];
   onMove: (taskId: string) => void;
   onDelete: (taskId: string) => void;
+  onViewDetails: (taskId: string) => void;
   focusedTaskId?: string;
 }
 
@@ -34,6 +35,7 @@ export function TaskColumn({
   tasks,
   onMove,
   onDelete,
+  onViewDetails,
   focusedTaskId,
 }: TaskColumnProps) {
   const config = statusConfig[status];
@@ -84,6 +86,7 @@ export function TaskColumn({
               task={task}
               onMove={onMove}
               onDelete={onDelete}
+              onViewDetails={onViewDetails}
               isFocusMode={focusedTaskId === task.id}
             />
           ))

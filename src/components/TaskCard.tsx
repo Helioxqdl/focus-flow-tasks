@@ -12,12 +12,15 @@ export interface Task {
   priority: Priority;
   status: Status;
   reminder?: string;
+  description?: string;
+  estimatedTime?: number;
 }
 
 interface TaskCardProps {
   task: Task;
   onMove: (taskId: string) => void;
   onDelete: (taskId: string) => void;
+  onViewDetails: (taskId: string) => void;
   isFocusMode?: boolean;
 }
 
@@ -36,11 +39,12 @@ const priorityConfig = {
   },
 };
 
-export function TaskCard({ task, onMove, onDelete, isFocusMode }: TaskCardProps) {
+export function TaskCard({ task, onMove, onDelete, onViewDetails, isFocusMode }: TaskCardProps) {
   return (
     <div
+      onClick={() => onViewDetails(task.id)}
       className={cn(
-        "group relative bg-card rounded-xl border-2 border-border p-5 shadow-md transition-all duration-200",
+        "group relative bg-card rounded-xl border-2 border-border p-5 shadow-md transition-all duration-200 cursor-pointer",
         "hover:shadow-xl hover:scale-[1.02] animate-fade-in",
         isFocusMode && "ring-4 ring-primary ring-offset-4"
       )}
@@ -80,7 +84,10 @@ export function TaskCard({ task, onMove, onDelete, isFocusMode }: TaskCardProps)
           <Button
             variant="outline"
             size="lg"
-            onClick={() => onMove(task.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onMove(task.id);
+            }}
             className="gap-2 font-semibold"
           >
             <ChevronRight className="h-5 w-5" />
@@ -89,7 +96,10 @@ export function TaskCard({ task, onMove, onDelete, isFocusMode }: TaskCardProps)
           <Button
             variant="destructive"
             size="lg"
-            onClick={() => onDelete(task.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(task.id);
+            }}
           >
             <Trash2 className="h-5 w-5" />
           </Button>

@@ -1,15 +1,22 @@
 import { useState, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddTaskForm } from "@/components/AddTaskForm";
 import { TaskColumn } from "@/components/TaskColumn";
 import { FocusMode } from "@/components/FocusMode";
+import { TaskDetails } from "@/components/TaskDetails";
+import { BottomNav } from "@/components/BottomNav";
 import { Task, Priority, Status } from "@/components/TaskCard";
 import { useToast } from "@/hooks/use-toast";
+import Timer from "./Timer";
+import Categories from "./Categories";
+import Settings from "./Settings";
 
 const Index = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [focusedTaskId, setFocusedTaskId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [currentView, setCurrentView] = useState<string>("tasks");
   const { toast } = useToast();
 
   // Request notification permission on mount
@@ -19,13 +26,15 @@ const Index = () => {
     }
   }, []);
 
-  const addTask = (title: string, priority: Priority, reminder?: string) => {
+  const addTask = (title: string, priority: Priority, reminder?: string, description?: string, estimatedTime?: number) => {
     const newTask: Task = {
       id: Date.now().toString(),
       title,
       priority,
       status: "todo",
       reminder,
+      description,
+      estimatedTime,
     };
 
     setTasks([newTask, ...tasks]);
@@ -108,7 +117,9 @@ const Index = () => {
   const deleteTask = (taskId: string) => {
     const task = tasks.find((t) => t.id === taskId);
     setTasks(tasks.filter((t) => t.id !== taskId));
-    
+    if (selectedTaskId === taskId) {
+      setSelectedTaskId(null);
+    }
     if (task) {
       toast({
         title: "🗑️ Tarefa excluída",
@@ -118,27 +129,77 @@ const Index = () => {
     }
   };
 
+  const completeTask = (taskId: string) => {
+    const updatedTasks = tasks.map((task) =>
+      task.id === taskId ? { ...task, status: "done" as Status } : task
+    );
+    setTasks(updatedTasks);
+    toast({
+      title: "Tarefa concluída! 🎉",
+      description: "Parabéns por completar esta tarefa!",
+    });
+  };
+
+  const selectedTask = tasks.find(task => task.id === selectedTaskId) || null;
+
   const todoTasks = tasks.filter((t) => t.status === "todo");
   const progressTasks = tasks.filter((t) => t.status === "progress");
   const doneTasks = tasks.filter((t) => t.status === "done");
 
   const focusedTask = tasks.find((t) => t.id === focusedTaskId);
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-primary text-primary-foreground py-6 px-4 shadow-lg">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-center">
-            Gestor de Tarefas TDAH
-          </h1>
-          <p className="text-center text-lg mt-2 opacity-90">
-            Foco, clareza e organização para o seu dia
-          </p>
-        </div>
-      </header>
+  // Render different views
+  if (currentView === "timer") {
+    return (
+      <>
+        <Timer />
+        <BottomNav currentView={currentView} onViewChange={setCurrentView} />
+      </>
+    );
+  }
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+  if (currentView === "categories") {
+    return (
+      <>
+        <Categories />
+        <BottomNav currentView={currentView} onViewChange={setCurrentView} />
+      </>
+    );
+  }
+
+  if (currentView === "settings") {
+    return (
+      <>
+        <Settings />
+        <BottomNav currentView={currentView} onViewChange={setCurrentView} />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="min-h-screen bg-background pb-24">
+        <TaskDetails
+          task={selectedTask}
+          isOpen={!!selectedTaskId}
+          onClose={() => setSelectedTaskId(null)}
+          onMove={moveTask}
+          onComplete={completeTask}
+        />
+
+        {/* Header */}
+        <header className="bg-primary text-primary-foreground py-6 px-4 shadow-lg">
+          <div className="max-w-7xl mx-auto">
+            <h1 className="text-4xl font-bold text-center">
+              Gestor de Tarefas TDAH
+            </h1>
+            <p className="text-center text-lg mt-2 opacity-90">
+              Foco, clareza e organização para o seu dia
+            </p>
+          </div>
+        </header>
+
+        <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         {/* Add Task Form */}
         <AddTaskForm onAdd={addTask} />
 
@@ -160,43 +221,49 @@ const Index = () => {
           </div>
         )}
 
-        {/* Task Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <TaskColumn
-            title="A Fazer"
-            status="todo"
-            tasks={todoTasks}
-            onMove={moveTask}
-            onDelete={deleteTask}
-            focusedTaskId={focusedTaskId || undefined}
-          />
-          <TaskColumn
-            title="Em Progresso"
-            status="progress"
-            tasks={progressTasks}
-            onMove={moveTask}
-            onDelete={deleteTask}
-          />
-          <TaskColumn
-            title="Concluído"
-            status="done"
-            tasks={doneTasks}
-            onMove={moveTask}
-            onDelete={deleteTask}
-          />
-        </div>
-      </main>
+          {/* Task Columns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <TaskColumn
+              title="A Fazer"
+              status="todo"
+              tasks={todoTasks}
+              onMove={moveTask}
+              onDelete={deleteTask}
+              onViewDetails={setSelectedTaskId}
+              focusedTaskId={focusedTaskId || undefined}
+            />
+            <TaskColumn
+              title="Em Progresso"
+              status="progress"
+              tasks={progressTasks}
+              onMove={moveTask}
+              onDelete={deleteTask}
+              onViewDetails={setSelectedTaskId}
+            />
+            <TaskColumn
+              title="Concluído"
+              status="done"
+              tasks={doneTasks}
+              onMove={moveTask}
+              onDelete={deleteTask}
+              onViewDetails={setSelectedTaskId}
+            />
+          </div>
+        </main>
 
-      {/* Focus Mode Overlay */}
-      {focusedTask && (
-        <FocusMode
-          task={focusedTask}
-          onClose={() => setFocusedTaskId(null)}
-          onMove={moveTask}
-          onDelete={deleteTask}
-        />
-      )}
-    </div>
+        {/* Focus Mode Overlay */}
+        {focusedTask && (
+          <FocusMode
+            task={focusedTask}
+            onClose={() => setFocusedTaskId(null)}
+            onMove={moveTask}
+            onDelete={deleteTask}
+          />
+        )}
+
+        <BottomNav currentView={currentView} onViewChange={setCurrentView} />
+      </div>
+    </>
   );
 };
 
